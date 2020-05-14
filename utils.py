@@ -44,7 +44,8 @@ def xml_to_tf(path_input, path_output):
             tree = ET.parse(xmlFile)
             root = tree.getroot()
 
-            filename = root[1].text + IMAGE_EXT
+            # filename = root[1].text + IMAGE_EXT  # TODO: ???
+            filename = root[1].text
             width = int(root[4][0].text)
             height = int(root[4][1].text)
 

@@ -13,6 +13,10 @@ start:
 stop:
 	docker-compose down
 
+destroy:
+	docker-compose down -v
+	docker-compose rm -v -f -s
+
 restart:
 	make start
 	make stop

@@ -6,9 +6,9 @@ import dataset_util
 
 # This are the path to the datasets and to the output files.
 # NEED TO BE UPDATED IN CASE THE DATASET CHANGES
-PATH_TEST = "images/test/"
+PATH_TEST = "TensorFlow/worspace/images/test/"
 PATH_RECORD_TEST = "test2.record"
-PATH_TRAIN = "images/train/"
+PATH_TRAIN = "TensorFlow/worspace/images/train/"
 PATH_RECORD_TRAIN = "train2.record"
 
 IMAGE_EXT = ".jpg"

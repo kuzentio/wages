@@ -15,6 +15,10 @@ services:
     restart: always
     command: >
       sh -c "
+        while [ ! -f 'frontend/build/index.html' ]
+        do
+          echo 'Waiting for frontend build to become ready...'; sleep 5;
+        done;
         python manage.py migrate &&
         python manage.py runserver 0.0.0.0:8000
       "
@@ -28,6 +32,16 @@ services:
     volumes:
       - ./provision/db:/docker-entrypoint-initdb.d
       - postgres-db:/var/lib/postgresql/data
+  npm-build:
+    image: node:14.1
+    command: >
+      sh -c "
+        cd wages/frontend &&
+        npm install &&
+        npm run build
+      "
+    volumes:
+      - .:/wages
 
 volumes:
   postgres-db:

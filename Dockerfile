@@ -81,6 +81,13 @@ RUN apt-get update && yes | apt-get upgrade
 RUN pip install tensorflow
 RUN apt-get install -y protobuf-compiler python-pil python-lxml
 
+### Installinf Protob
+WORKDIR /TensorFlow
+RUN git clone https://github.com/tensorflow/models.git
+WORKDIR /TensorFlow/models/research
+#RUN protoc object_detection/protos/*.proto --python_out=.
+RUN pip install .
+WORKDIR /
 
 ### Installing Python dependencies ###
 ENV PYTHONUNBUFFERED 1

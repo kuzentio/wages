@@ -4,7 +4,13 @@ MAINTAINER Kuzmenko Ihor <0585ec@gmail.com>
 ### Installing OpenCV ###
 RUN apt-get update \
     && apt-get install -y \
+        autoconf \
+        automake \
+        g++ \
+        libtool \
+        curl \
         build-essential \
+        make \
         cmake \
         git \
         wget \
@@ -53,7 +59,6 @@ RUN ln -s \
   /usr/local/python/cv2/python-3.7/cv2.cpython-37m-x86_64-linux-gnu.so \
   /usr/local/lib/python3.7/site-packages/cv2.so
 
-
 ### Installing Python dependencies ###
 ENV PYTHONUNBUFFERED 1
 RUN mkdir /wages
@@ -61,3 +66,24 @@ WORKDIR /wages
 ADD . .
 RUN pip install -r requirements.txt
 EXPOSE 8000
+
+### Install Tensorflow models
+#ENV TENSORFLOW_MODELS_VERSION="r1.13.0"
+#RUN cd /wages/TensorFlow \
+#    && wget https://github.com/tensorflow/models/archive/${TENSORFLOW_MODELS_VERSION}.zip \
+#    && unzip ${TENSORFLOW_MODELS_VERSION}.zip -d /wages/TensorFlow
+
+### Protobuf Installation/Compilation
+RUN mkdir /GoogleProtobuf
+ENV PATH_TO_PB /GoogleProtobuf
+ENV PROTOBUF_VERSION="3.12.1"
+RUN cd /GoogleProtobuf \
+    && wget https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOBUF_VERSION}/protobuf-all-${PROTOBUF_VERSION}.zip \
+    && unzip protobuf-all-${PROTOBUF_VERSION}.zip -d ${PATH_TO_PB}
+RUN cd /GoogleProtobuf/protobuf-${PROTOBUF_VERSION} \
+    && ./configure \
+    && make \
+    && make install \
+    && ldconfig
+
+WORKDIR /wages

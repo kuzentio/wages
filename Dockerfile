@@ -53,6 +53,21 @@ RUN ln -s \
   /usr/local/python/cv2/python-3.7/cv2.cpython-37m-x86_64-linux-gnu.so \
   /usr/local/lib/python3.7/site-packages/cv2.so
 
+### Install Tensorflow models
+RUN mkdir /TensorFlow
+WORKDIR /TensorFlow
+ENV TENSORFLOW_MODELS_VERSION="r1.13.0"
+RUN wget https://github.com/tensorflow/models/archive/${TENSORFLOW_MODELS_VERSION}.zip \
+&& unzip ${TENSORFLOW_MODELS_VERSION}.zip \
+
+### Protobuf Installation/Compilation
+RUN mkdir /GoogleProtobuf
+WORKDIR /GoogleProtobuf
+ENV PATH_TO_PB /GoogleProtobuf
+ENV PROTOBUF_VERSION="3.12.1"
+RUN wget https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOBUF_VERSION}/protobuf-all-${PROTOBUF_VERSION}.zip \
+&& unzip protobuf-all-${PROTOBUF_VERSION}.zip
+ENV PATH="${PATH_TO_PB}:${PATH}"
 
 ### Installing Python dependencies ###
 ENV PYTHONUNBUFFERED 1

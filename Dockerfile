@@ -62,19 +62,16 @@ RUN pip install -r requirements.txt
 EXPOSE 8000
 
 ### Install Tensorflow models
-WORKDIR /wages/TensorFlow
 ENV TENSORFLOW_MODELS_VERSION="r1.13.0"
-RUN wget https://github.com/tensorflow/models/archive/${TENSORFLOW_MODELS_VERSION}.zip \
-    && unzip ${TENSORFLOW_MODELS_VERSION}.zip
+RUN cd /wages/TensorFlow \
+    && wget https://github.com/tensorflow/models/archive/${TENSORFLOW_MODELS_VERSION}.zip \
+    && unzip ${TENSORFLOW_MODELS_VERSION}.zip -d /wages/TensorFlow
 
 ### Protobuf Installation/Compilation
 RUN mkdir /GoogleProtobuf
-WORKDIR /GoogleProtobuf
 ENV PATH_TO_PB /GoogleProtobuf
 ENV PROTOBUF_VERSION="3.12.1"
-RUN wget https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOBUF_VERSION}/protobuf-all-${PROTOBUF_VERSION}.zip \
-    && unzip protobuf-all-${PROTOBUF_VERSION}.zip
+RUN cd /GoogleProtobuf \
+    && wget https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOBUF_VERSION}/protobuf-all-${PROTOBUF_VERSION}.zip \
+    && unzip protobuf-all-${PROTOBUF_VERSION}.zip -d /GoogleProtobuf
 ENV PATH "$PATH:${PATH_TO_PB}"
-
-WORKDIR /wages
-EXPOSE 5433

@@ -28,6 +28,18 @@ services:
     volumes:
       - ./provision/db:/docker-entrypoint-initdb.d
       - postgres-db:/var/lib/postgresql/data
-
+  ts-models-build:
+    build: .
+    depends_on:
+      - web
+      - db
+    command: >
+      sh -c "
+        cd TensorFlow/ &&
+        wget https://github.com/tensorflow/models/archive/r1.13.0.zip &&
+        unzip r1.13.0.zip
+      "
+    volumes:
+      - .:/wages
 volumes:
   postgres-db:

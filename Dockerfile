@@ -62,10 +62,10 @@ RUN pip install -r requirements.txt
 EXPOSE 8000
 
 ### Install Tensorflow models
-ENV TENSORFLOW_MODELS_VERSION="r1.13.0"
-RUN cd /wages/TensorFlow \
-    && wget https://github.com/tensorflow/models/archive/${TENSORFLOW_MODELS_VERSION}.zip \
-    && unzip ${TENSORFLOW_MODELS_VERSION}.zip -d /wages/TensorFlow
+#ENV TENSORFLOW_MODELS_VERSION="r1.13.0"
+#RUN cd /wages/TensorFlow \
+#    && wget https://github.com/tensorflow/models/archive/${TENSORFLOW_MODELS_VERSION}.zip \
+#    && unzip ${TENSORFLOW_MODELS_VERSION}.zip -d /wages/TensorFlow
 
 ### Protobuf Installation/Compilation
 RUN mkdir /GoogleProtobuf

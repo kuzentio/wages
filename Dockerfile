@@ -4,7 +4,13 @@ MAINTAINER Kuzmenko Ihor <0585ec@gmail.com>
 ### Installing OpenCV ###
 RUN apt-get update \
     && apt-get install -y \
+        autoconf \
+        automake \
+        g++ \
+        libtool \
+        curl \
         build-essential \
+        make \
         cmake \
         git \
         wget \
@@ -73,5 +79,11 @@ ENV PATH_TO_PB /GoogleProtobuf
 ENV PROTOBUF_VERSION="3.12.1"
 RUN cd /GoogleProtobuf \
     && wget https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOBUF_VERSION}/protobuf-all-${PROTOBUF_VERSION}.zip \
-    && unzip protobuf-all-${PROTOBUF_VERSION}.zip -d /GoogleProtobuf
-ENV PATH "$PATH:${PATH_TO_PB}"
+    && unzip protobuf-all-${PROTOBUF_VERSION}.zip -d ${PATH_TO_PB}
+RUN cd /GoogleProtobuf/protobuf-${PROTOBUF_VERSION} \
+    && ./configure \
+    && make \
+    && make install \
+    && ldconfig
+
+WORKDIR /wages

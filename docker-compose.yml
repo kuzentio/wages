@@ -22,9 +22,9 @@ services:
     image: postgres:12.2
     restart: always
     env_file:
-      - provision/db/.env
+      - provision/.env
     ports:
-      - "5433:5432"
+      - "5432:5432"
     volumes:
       - ./provision/db:/docker-entrypoint-initdb.d
       - postgres-db:/var/lib/postgresql/data
@@ -40,6 +40,20 @@ services:
         unzip r1.13.0.zip &&
         mv models-r1.13.0 models &&
         rm r1.13.0.zip
+      "
+    volumes:
+      - .:/wages
+  ts-labelimg-build:
+    build: .
+    depends_on:
+      - web
+      - db
+    command: >
+      sh -c "
+        cd TensorFlow/addons &&
+        wget https://www.dropbox.com/s/bpbo3oh0zgl0522/linux_v1.4.3.zip &&
+        unzip linux_v1.4.3.zip &&
+        rm linux_v1.4.3.zip
       "
     volumes:
       - .:/wages

@@ -59,19 +59,13 @@ RUN ln -s \
   /usr/local/python/cv2/python-3.7/cv2.cpython-37m-x86_64-linux-gnu.so \
   /usr/local/lib/python3.7/site-packages/cv2.so
 
-### Installing Python dependencies ###
+### Installing Python dependencies
 ENV PYTHONUNBUFFERED 1
 RUN mkdir /wages
 WORKDIR /wages
 ADD . .
 RUN pip install -r requirements.txt
 EXPOSE 8000
-
-### Install Tensorflow models
-#ENV TENSORFLOW_MODELS_VERSION="r1.13.0"
-#RUN cd /wages/TensorFlow \
-#    && wget https://github.com/tensorflow/models/archive/${TENSORFLOW_MODELS_VERSION}.zip \
-#    && unzip ${TENSORFLOW_MODELS_VERSION}.zip -d /wages/TensorFlow
 
 ### Protobuf Installation/Compilation
 RUN mkdir /GoogleProtobuf
@@ -85,5 +79,7 @@ RUN cd /GoogleProtobuf/protobuf-${PROTOBUF_VERSION} \
     && make \
     && make install \
     && ldconfig
+ENV PYTHONPATH $PYTHONPATH:/wages/TensorFlow/models/research
+ENV PYTHONPATH $PYTHONPATH:/wages/TensorFlow/models/research/slim
 
 WORKDIR /wages

@@ -79,5 +79,7 @@ RUN cd /GoogleProtobuf/protobuf-${PROTOBUF_VERSION} \
     && make \
     && make install \
     && ldconfig
+ENV PYTHONPATH $PYTHONPATH:/wages/TensorFlow/models/research
+ENV PYTHONPATH $PYTHONPATH:/wages/TensorFlow/models/research/slim
 
 WORKDIR /wages

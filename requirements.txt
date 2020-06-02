@@ -7,3 +7,6 @@ psycopg2==2.8.5
 tensorflow==1.14.0
 opencv-python==4.2.0.34
 Pillow==7.1.2
+pandas==1.0.4
+Cython==0.29.19
+detecto==1.1.4

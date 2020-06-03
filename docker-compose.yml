@@ -5,7 +5,6 @@ services:
     build: .
     depends_on:
       - db
-      - ts-cocoapi-tools-build
     env_file:
       - provision/.env
     volumes:

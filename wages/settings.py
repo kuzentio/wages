@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_extensions',
 
-    'recognition',
+    'vegetable',
 ]
 
 MIDDLEWARE = [
@@ -129,6 +129,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
     os.path.join(BASE_DIR, 'frontend', "build", "static"),
 )
 

@@ -10,3 +10,4 @@ Pillow==7.1.2
 pandas==1.0.4
 Cython==0.29.19
 detecto==1.1.4
+ipdb

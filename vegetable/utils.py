@@ -4,6 +4,8 @@ import six
 import uuid
 import imghdr
 
+from django.core.files.images import get_image_dimensions
+
 
 def decode_base64_file(data):
     def get_file_extension(file_name, decoded_file):
@@ -33,3 +35,16 @@ def decode_base64_file(data):
         complete_file_name = "%s.%s" % (file_name, file_extension, )
 
         return ContentFile(decoded_file, name=complete_file_name)
+
+
+def boxes_to_pascal(boxes=None, image=None):
+    if boxes is None:
+        return
+    pascal_voc = {
+        'xmin': boxes['x'],
+        'ymin': boxes['y'],
+        'xmax': boxes['w'] + boxes['x'],
+        'ymax': boxes['h'] + boxes['y']
+    }
+
+    return pascal_voc

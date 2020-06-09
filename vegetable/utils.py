@@ -41,10 +41,10 @@ def boxes_to_pascal(boxes=None, image=None):
     if boxes is None:
         return
     pascal_voc = {
-        'xmin': boxes['x'],
-        'ymin': boxes['y'],
-        'xmax': boxes['w'] + boxes['x'],
-        'ymax': boxes['h'] + boxes['y']
+        'xmin': round(boxes['x']),
+        'ymin': round(boxes['y']),
+        'xmax': round(boxes['w'] + boxes['x']),
+        'ymax': round(boxes['h'] + boxes['y'])
     }
 
     return pascal_voc

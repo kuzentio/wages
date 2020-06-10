@@ -5,6 +5,7 @@ services:
     build: .
     depends_on:
       - db
+      - redis
     env_file:
       - provision/.env
     volumes:
@@ -28,6 +29,32 @@ services:
     volumes:
       - ./provision/db:/docker-entrypoint-initdb.d
       - postgres-db:/var/lib/postgresql/data
+  celery-worker:
+    build: .
+    restart: always
+    depends_on:
+      - web
+    env_file:
+      - provision/.env
+    command: celery -A wages worker -l info --concurrency=1
+    volumes:
+      - .:/wages
+      - /var/run/docker.sock:/var/run/docker.sock
+  celery-scheduler:
+    build: .
+    restart: always
+    depends_on:
+      - web
+    env_file:
+      - provision/.env
+    command: celery -A wages beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    volumes:
+      - .:/wages
+      - /var/run/docker.sock:/var/run/docker.sock
+  redis:
+    image: redis:5-alpine
+    ports:
+      - "6379:6379"
 
 volumes:
   postgres-db:

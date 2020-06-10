@@ -1,10 +1,10 @@
 import os
 
-from detecto.core import Model, Dataset
+from detecto.core import Model, Dataset, DataLoader
 from django.core.management import BaseCommand
 from django.db import transaction
 
-from vegetable.models import Vegetable, pytorch_path, PYTORCH_BASE_DIR
+from vegetable.models import Vegetable, PYTORCH_BASE_DIR
 
 
 class Command(BaseCommand):
@@ -30,6 +30,7 @@ class Command(BaseCommand):
             return
         model = Model([vegetable.slug, ])
         path = os.path.join(PYTORCH_BASE_DIR, 'images', vegetable.slug)
-        dataset = Dataset(path)
 
-        model.fit(dataset)
+        dataset = Dataset(path, )
+        loader = DataLoader(dataset, batch_size=1)
+        model.fit(loader, verbose=True, )

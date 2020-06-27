@@ -5,7 +5,6 @@ services:
     build: .
     depends_on:
       - db
-      - redis
     env_file:
       - provision/.env
     volumes:
@@ -33,7 +32,8 @@ services:
     build: .
     restart: always
     depends_on:
-      - web
+      - redis
+      - db
     env_file:
       - provision/.env
     command: celery -A wages worker -l info --concurrency=1
@@ -44,7 +44,8 @@ services:
     build: .
     restart: always
     depends_on:
-      - web
+      - redis
+      - db
     env_file:
       - provision/.env
     command: celery -A wages beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler

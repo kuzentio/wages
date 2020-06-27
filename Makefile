@@ -7,6 +7,9 @@ bash:
 runserver:
 	docker-compose run --rm --service-ports web python manage.py runserver 0.0.0.0:8000
 
+worker:
+	docker-compose run --rm --service-ports celery-worker celery -A wages worker -l info --concurrency=1
+
 start:
 	docker-compose up
 

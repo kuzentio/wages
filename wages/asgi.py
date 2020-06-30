@@ -11,6 +11,9 @@ import os
 
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'wages.settings.local')
+if os.environ.get('ENV') is not None:
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'wages.settings.{}'.format(os.environ.get('ENV')))
+else:
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'wages.settings.local')
 
 application = get_asgi_application()

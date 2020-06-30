@@ -1,12 +1,12 @@
 import os
 
 from django.conf import settings
-from django.contrib.postgres.fields import JSONField
 from django.core.files.images import get_image_dimensions
 from django.db import models, transaction
 from django.template.loader import render_to_string
 from django.utils.text import slugify
 
+from vegetable.helpers import JSONField
 
 PYTORCH_BASE_DIR = os.path.join(settings.BASE_DIR, 'PyTorch')
 

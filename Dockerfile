@@ -65,7 +65,7 @@ ENV PYTHONUNBUFFERED 1
 RUN mkdir /wages
 WORKDIR /wages
 ADD . .
-RUN pip install -r requirements/base.txt
+RUN pip install -r requirements/local.txt
 
 ### Protobuf Installation/Compilation
 RUN mkdir /GoogleProtobuf

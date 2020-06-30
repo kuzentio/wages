@@ -1,20 +1,5 @@
-import json
-
 from django.conf import settings
-from django.contrib.postgres.fields import (
-    JSONField as DjangoJSONField,
-    ArrayField as DjangoArrayField,
-)
 from django.db.models import Field
-
-
-class JSONField(DjangoJSONField):
-    pass
-
-
-class ArrayField(DjangoArrayField):
-    pass
-
 
 if 'sqlite' in settings.DATABASES['default']['ENGINE']:
     class JSONField(Field):
@@ -58,3 +43,15 @@ if 'sqlite' in settings.DATABASES['default']['ENGINE']:
                 'size': self.size,
             })
             return name, path, args, kwargs
+else:
+    import json
+    from django.contrib.postgres.fields import (
+        JSONField as DjangoJSONField,
+        ArrayField as DjangoArrayField,
+    )
+
+    class JSONField(DjangoJSONField):
+        pass
+
+    class ArrayField(DjangoArrayField):
+        pass

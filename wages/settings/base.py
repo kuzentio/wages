@@ -16,7 +16,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 from dotenv import load_dotenv
 load_dotenv(
-    dotenv_path=os.path.join(BASE_DIR, '../../provision', '.env'),
+    dotenv_path=os.path.join(BASE_DIR, '../provision', '.env'),
 )
 
 # SECURITY WARNING: keep the secret key used in production secret!

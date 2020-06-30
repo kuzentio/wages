@@ -8,7 +8,7 @@ if os.environ.get('ENV') is not None:
 else:
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'wages.settings.local')
 
-django.setup()
+# django.setup()
 app = Celery('wages')
 app.config_from_object('django.conf:settings')
 

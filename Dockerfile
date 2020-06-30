@@ -25,6 +25,7 @@ RUN apt-get update \
         libtiff-dev \
         libavformat-dev \
         libpq-dev \
+        python-psycopg2 \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pip install numpy
@@ -64,7 +65,7 @@ ENV PYTHONUNBUFFERED 1
 RUN mkdir /wages
 WORKDIR /wages
 ADD . .
-RUN pip install -r requirements/base.txt
+RUN pip install -r requirements/local.txt
 
 ### Protobuf Installation/Compilation
 RUN mkdir /GoogleProtobuf

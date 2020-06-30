@@ -25,6 +25,7 @@ RUN apt-get update \
         libtiff-dev \
         libavformat-dev \
         libpq-dev \
+        python-psycopg2 \
     && rm -rf /var/lib/apt/lists/*
 
 RUN pip install numpy

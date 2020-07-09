@@ -297,5 +297,8 @@ frontend/
 TensorFlow/models
 .notes
 PyTorch/images
+/PyTorch/test-images/
+/wages/PyTorch/images/
+/wages/PyTorch/models/test.pth
 /PyTorch/
 /wages/PyTorch/

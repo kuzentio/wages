@@ -1,4 +1,5 @@
 import os
+import shutil
 
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
@@ -12,24 +13,19 @@ PYTORCH_BASE_DIR = os.path.join(settings.BASE_DIR, 'PyTorch')
 
 
 def pytorch_path(instance, filename):
-    return os.path.join(PYTORCH_BASE_DIR, 'images', instance.vegetable.slug, filename)
+    return os.path.join(PYTORCH_BASE_DIR, 'images', '{slug}-{filename}'.format(
+        slug=instance.vegetable.slug, filename=filename
+    ))
 
 
 class Vegetable(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(unique=True)
 
-    def get_or_create_pytorch_dir(self):
-        pytorch_dir = os.path.join(PYTORCH_BASE_DIR, 'images', self.slug)
-        if not os.path.exists(pytorch_dir):
-            os.makedirs(pytorch_dir)
-        return pytorch_dir
-
     @transaction.atomic
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
         self.slug = slugify(self.name)
-        self.get_or_create_pytorch_dir()
         super(Vegetable, self).save(force_insert, force_update, using, update_fields)
 
 

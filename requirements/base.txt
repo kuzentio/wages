@@ -9,3 +9,4 @@ Cython==0.29.19
 django-celery-beat==2.0.0
 redis==3.5.3
 django-celery-results
+python-dotenv

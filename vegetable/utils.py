@@ -1,3 +1,5 @@
+import os
+
 from django.core.files.base import ContentFile
 import base64
 import six
@@ -48,3 +50,10 @@ def boxes_to_pascal(boxes=None, image=None):
     }
 
     return pascal_voc
+
+
+def image_and_annotation_folder():
+    folder = 'images'
+    if not os.getenv('ENV') == 'nano':
+        folder = 'test-' + folder
+    return folder

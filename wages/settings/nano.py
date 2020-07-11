@@ -1,10 +1,8 @@
 from .base import *
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
+from dotenv import load_dotenv
+load_dotenv(
+    dotenv_path=os.path.join(BASE_DIR, '../provision/nano', '.env'),
+)
 
 ALLOWED_HOSTS = ['*']

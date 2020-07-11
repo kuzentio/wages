@@ -1,5 +1,4 @@
 import os
-import shutil
 
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
@@ -8,12 +7,13 @@ from django.db import models, transaction
 from django.template.loader import render_to_string
 from django.utils.text import slugify
 
+from vegetable.utils import image_and_annotation_folder
 
 PYTORCH_BASE_DIR = os.path.join(settings.BASE_DIR, 'PyTorch')
 
 
 def pytorch_path(instance, filename):
-    return os.path.join(PYTORCH_BASE_DIR, 'images', '{slug}-{filename}'.format(
+    return os.path.join(PYTORCH_BASE_DIR, image_and_annotation_folder(), '{slug}-{filename}'.format(
         slug=instance.vegetable.slug, filename=filename
     ))
 

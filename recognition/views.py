@@ -16,12 +16,8 @@ def recognize(request):
     img_file = utils.decode_base64_file(image_data)
     img = Image.open(img_file)
     labels, boxes, scores = model.predict_top(img)
-
+    predictions = zip(labels, [s.item() for s in scores])
     return JsonResponse({
         'success': True,
-        'predictions': {
-            'labels': labels,
-            # 'image': _image,
-            'scores': [s.item() for s in scores]
-        },
+        'predictions': list(predictions),
     })

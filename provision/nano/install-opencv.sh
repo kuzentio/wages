@@ -4,5 +4,3 @@ git clone https://github.com/JetsonHacksNano/buildOpenCV
 cd buildOpenCV
 ./buildOpenCV.sh |& tee openCV_build.log
 sudo ldconfig -v
-
-sudo apt-get install -y postgresql

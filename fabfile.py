@@ -86,11 +86,22 @@ def installDetecto(ctx):
 
 
 @task
+def installTorchvision(ctx):
+    cmd = """
+    git clone https://github.com/pytorch/vision; cd vision
+    export TORCHVISION_PYTORCH_DEPENDENCY_NAME=torch
+    sudo python3 setup.py install; cd
+    """
+    connection.run(cmd, pty=True, watchers=[sudopass, ])
+
+
+@task
 def provision(ctx):
     apt_upgrade(ctx)
     install_pip3(ctx)
     installOpenCV(ctx)
     installPostgres(ctx)
     nistallRedis(ctx)
-    installPyTorch(ctx)
     installDetecto(ctx)
+    installPyTorch(ctx)
+    installTorchvision(ctx)

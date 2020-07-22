@@ -1,6 +1,12 @@
 -r ./base.txt
+
+Pillow==7.1.2
+pandas==1.0.4
+Cython==0.29.19
+
 psycopg2==2.8.5
 opencv-python==4.2.0.34
 django-extensions==2.2.9
 detecto==1.1.4
 ipdb
+fabric==2.5.0

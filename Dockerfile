@@ -67,20 +67,5 @@ WORKDIR /wages
 ADD . .
 RUN pip install -r requirements/local.txt
 
-### Protobuf Installation/Compilation
-RUN mkdir /GoogleProtobuf
-ENV PATH_TO_PB /GoogleProtobuf
-ENV PROTOBUF_VERSION="3.12.1"
-RUN cd /GoogleProtobuf \
-    && wget https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOBUF_VERSION}/protobuf-all-${PROTOBUF_VERSION}.zip \
-    && unzip protobuf-all-${PROTOBUF_VERSION}.zip -d ${PATH_TO_PB}
-RUN cd /GoogleProtobuf/protobuf-${PROTOBUF_VERSION} \
-    && ./configure \
-    && make \
-    && make install \
-    && ldconfig
-ENV PYTHONPATH $PYTHONPATH:/wages/TensorFlow/models/research
-ENV PYTHONPATH $PYTHONPATH:/wages/TensorFlow/models/research/slim
-
 EXPOSE 8000
 WORKDIR /wages

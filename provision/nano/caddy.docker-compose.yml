@@ -1,9 +1,9 @@
 webserver:
-  image: jumanjiman/caddy
+  image: yobasystems/alpine-caddy
   ports:
     - "80:8000"
     - "443:443"
   volumes:
-    - ./provision/nano/:/provision/nano/
+    - ./provision/nano/:/nano
     - ./frontend/build/:/react/
-  command: -port 8000 -host 0.0.0.0 -conf /prod/Caddyfile
+  command: -port 8000 -host 0.0.0.0 -conf /nano/Caddyfile

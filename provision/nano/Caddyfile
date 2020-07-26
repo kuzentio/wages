@@ -1,0 +1,11 @@
+wages.domain {
+    root /home/igor/wages/frontend/build
+}
+api.wages.domain {
+    proxy / 127.0.0.1:8000 {
+        transparent
+    }
+}
+wages.domain/static {
+    root /home/igor/wages/wages/staticfiles
+}

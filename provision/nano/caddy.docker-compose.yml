@@ -6,4 +6,4 @@ webserver:
   volumes:
     - .:/nano
     - ./frontend/build/:/react/
-  command: -port 8000 -host 0.0.0.0 -conf /nano/provision/nano/Caddyfile
+  command: -port 8000 -host 0.0.0.0 -conf /nano/Caddyfile

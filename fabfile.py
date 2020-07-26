@@ -108,6 +108,29 @@ def installTorchvision(ctx):
     connection.run(cmd, pty=True, watchers=[sudopass, ])
 
 
+# @task
+# def startCaddyDockerDeamon(ctx):
+#     cmd = """
+#     sudo docker run -d \
+#     --name wages-caddy \
+#     -p 80:8000 \
+#     -v /var/www/html:/frontend/build \
+#     elswork/arm-caddy:latest
+#     """
+#     connection.run(cmd, pty=True, watchers=[sudopass, ])
+
+
+@task
+def installNode(ctx):
+    cmd = """
+    wget https://nodejs.org/dist/v12.13.0/node-v12.13.0-linux-arm64.tar.xz
+    tar -xJf node-v12.13.0-linux-arm64.tar.xz
+    cd node-v12.13.0-linux-arm64
+    sudo cp -R * /usr/local/; cd
+    """
+    connection.run(cmd, pty=True, watchers=[sudopass, ])
+
+
 @task
 def provision(ctx):
     apt_upgrade(ctx)
@@ -118,3 +141,4 @@ def provision(ctx):
     installDetecto(ctx)
     installPyTorch(ctx)
     installTorchvision(ctx)
+    installNode(ctx)

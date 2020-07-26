@@ -131,6 +131,7 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
     os.path.join(BASE_DIR, '..', 'frontend', "build", "static"),
 )
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 CORS_ORIGIN_ALLOW_ALL = True
 

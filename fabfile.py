@@ -53,13 +53,17 @@ def apt_upgrade(ctx):
 @task
 def installPostgres(ctx):
     apt_get_install(ctx, ['postgresql', 'libpq-dev'])
-    connection.run('pip3 install psycopg2')
+    pip3_install(['psycopg2==2.8.5', ])
 
 
 @task
 def inistallRedis(ctx):
     apt_get_install(ctx, ['redis', ])
-    connection.run('pip3 install redis')
+    pip3_install(['redis==3.5.3', ])
+
+
+def installDockerCompose(ctx):
+    pip3_install(['docker-compose==1.26.2', ], is_sudo=True)
 
 
 @task
@@ -108,16 +112,14 @@ def installTorchvision(ctx):
     connection.run(cmd, pty=True, watchers=[sudopass, ])
 
 
-# @task
-# def startCaddyDockerDeamon(ctx):
-#     cmd = """
-#     sudo docker run -d \
-#     --name wages-caddy \
-#     -p 80:8000 \
-#     -v /var/www/html:/frontend/build \
-#     elswork/arm-caddy:latest
-#     """
-#     connection.run(cmd, pty=True, watchers=[sudopass, ])
+@task
+def startCaddyDockerDeamon(ctx):
+    cmd = """
+    sudo docker run -d \
+    --name wages-caddy \
+    
+    """
+    connection.run(cmd, pty=True, watchers=[sudopass, ])
 
 
 @task
@@ -141,4 +143,5 @@ def provision(ctx):
     installDetecto(ctx)
     installPyTorch(ctx)
     installTorchvision(ctx)
+    installDockerCompose(ctx)
     installNode(ctx)

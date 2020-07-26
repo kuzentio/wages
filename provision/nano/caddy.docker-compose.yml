@@ -1,0 +1,9 @@
+webserver:
+  image: jumanjiman/caddy
+  ports:
+    - "80:8000"
+    - "443:443"
+  volumes:
+    - ./provision/nano/:/provision/nano/
+    - ./frontend/build/:/react/
+  command: -port 8000 -host 0.0.0.0 -conf /prod/Caddyfile

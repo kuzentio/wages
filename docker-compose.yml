@@ -6,7 +6,7 @@ services:
     depends_on:
       - db
     env_file:
-      - provision/.env
+      - provision/local/.env
     volumes:
       - .:/wages
       - /var/run/docker.sock:/var/run/docker.sock
@@ -22,7 +22,7 @@ services:
     image: postgres:12.2
     restart: always
     env_file:
-      - provision/.env
+      - provision/local/.env
     ports:
       - "5432:5432"
     volumes:
@@ -35,7 +35,7 @@ services:
       - redis
       - db
     env_file:
-      - provision/.env
+      - provision/local/.env
     command: celery -A wages worker -l info --concurrency=1
     volumes:
       - .:/wages
@@ -47,7 +47,7 @@ services:
       - redis
       - db
     env_file:
-      - provision/.env
+      - provision/local/.env
     command: celery -A wages beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
     volumes:
       - .:/wages

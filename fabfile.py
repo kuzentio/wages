@@ -3,13 +3,22 @@ from invoke import Responder
 
 SSH_TEST_USER_USERNAME = 'igor'
 SSH_TEST_USER_PASSWORD = '1'
+SSH_NANO_HOST = '192.168.0.113'
 
 connection = Connection(
-    '192.168.0.113', user=SSH_TEST_USER_USERNAME, port=22, connect_kwargs={'password': SSH_TEST_USER_PASSWORD}
+    SSH_NANO_HOST, user=SSH_TEST_USER_USERNAME, port=22, connect_kwargs={'password': SSH_TEST_USER_PASSWORD}
 )
 sudopass = Responder(
     pattern=r'\[sudo\] password for {}:'.format(SSH_TEST_USER_USERNAME),
     response=f'{SSH_TEST_USER_PASSWORD}\n',
+)
+local_sudopass = Responder(
+    pattern=r"{0}@{1}\'s password:".format(SSH_TEST_USER_USERNAME, SSH_NANO_HOST),
+    response=f'{SSH_TEST_USER_PASSWORD}\n',
+)
+github_approve_watcher = Responder(
+    pattern=r"Are you sure you want to continue connecting (yes/no)?",
+    response=f'yes\n',
 )
 
 
@@ -20,22 +29,24 @@ def apt_get_install(ctx, packages):
 
 
 @task
-def git_clone(ctx, uri, args=list):
-    _args = ''
-    if args:
-        _args = '--' + ' --'.join(list(args))
-    connection.run(f'git clone {_args} {uri}', pty=True, watchers=[sudopass, ])
+def git_clone(ctx, uri, params=None):
+    _params = ''
+    if params:
+        _params = '--' + ' --'.join(params)
+    connection.run(f'git clone {_params} {uri}', pty=True, watchers=[github_approve_watcher, ])
 
 
 @task
-def pip3_install(ctx, packages, args=list, is_sudo=False):
+def pip3_install(ctx, packages, params=None, is_sudo=False):
     _packages = ' '.join(packages)
-    _args = ''
-    if args:
-        _args = '-' + ' -'.join(list(args))
-    cmd = f'pip3 {_args} install {_packages}'
+    if not isinstance(params, list):
+        raise Exception("params should be list")
+    _params = ''
+    if params:
+        _params = '-' + ' -'.join(params)
+    cmd = f'pip3 install {_params} {_packages}'
     if is_sudo:
-        cmd = f'sudo pip3 {_args} install {_packages}'
+        cmd = f'sudo pip3 install {_params} {_packages}'
     connection.run(cmd, pty=True, watchers=[sudopass, ])
 
 
@@ -53,22 +64,22 @@ def apt_upgrade(ctx):
 @task
 def installPostgres(ctx):
     apt_get_install(ctx, ['postgresql', 'libpq-dev'])
-    pip3_install(['psycopg2==2.8.5', ])
+    pip3_install(ctx, ['psycopg2==2.8.5', ], params=[])
 
 
 @task
 def inistallRedis(ctx):
     apt_get_install(ctx, ['redis', ])
-    pip3_install(['redis==3.5.3', ])
+    pip3_install(ctx, ['redis==3.5.3', ], params=[])
 
 
 def installDockerCompose(ctx):
-    pip3_install(['docker-compose==1.26.2', ], is_sudo=True)
+    pip3_install(ctx, ['docker-compose==1.26.2', ], params=[], is_sudo=True)
 
 
 @task
 def installOpenCV(ctx):
-    git_clone('https://github.com/JetsonHacksNano/buildOpenCV')
+    git_clone(ctx, 'https://github.com/JetsonHacksNano/buildOpenCV')
     connection.run('cd buildOpenCV')
     connection.run('./buildOpenCV.sh |& tee openCV_build.log')
     connection.run('sudo ldconfig -v', pty=True, watchers=[sudopass, ])
@@ -78,7 +89,7 @@ def installOpenCV(ctx):
 @task
 def installPyTorch(ctx):
     apt_get_install(ctx, ['git', 'cmake', 'libpython3-dev', 'python3-numpy', 'python-matplotlib'])
-    git_clone('https://github.com/dusty-nv/jetson-inference', args=['recursive', ])
+    git_clone(ctx, uri='https://github.com/dusty-nv/jetson-inference', params=['recursive', ])
     cmd = """
     cd jetson-inference &&
     mkdir build &&
@@ -93,17 +104,17 @@ def installPyTorch(ctx):
 
 @task
 def installDetecto(ctx):
-    apt_get_install([
+    apt_get_install(ctx, [
         'curl', 'libffi-dev', 'python-openssl', 'libssl-dev', 'gcc', 'g++', 'make', 'python3-pip',
         'libhdf5-serial-dev', 'hdf5-tools'
     ])
-    pip3_install(['Cython==0.29.21', 'Pillow==7.2.0'])
-    pip3_install(['git+https://github.com/kuzentio/detecto.git#egg=detecto'], args=['-e'])
+    pip3_install(ctx, ['Cython==0.29.21', 'Pillow==7.2.0'], params=[])
+    pip3_install(ctx, ['git+https://github.com/kuzentio/detecto.git#egg=detecto'], params=['-e'])
 
 
 @task
 def installTorchvision(ctx):
-    git_clone('https://github.com/pytorch/vision')
+    git_clone(ctx, 'https://github.com/pytorch/vision')
     cmd = """
     cd vision
     export TORCHVISION_PYTORCH_DEPENDENCY_NAME=torch
@@ -131,6 +142,34 @@ def installNode(ctx):
     sudo cp -R * /usr/local/; cd
     """
     connection.run(cmd, pty=True, watchers=[sudopass, ])
+
+
+@task
+def ssh_scp_local_to_nano(ctx):
+    connection.local(
+        f'scp ~/.ssh/id_rsa {SSH_TEST_USER_USERNAME}@{SSH_NANO_HOST}:/home/igor/.ssh/',
+        pty=True, watchers=[local_sudopass, ]
+    )
+
+
+@task
+def copy_local_ssh_to_nano(ctx):
+    connection.local(
+        f'ssh-copy-id -i ~/.ssh/id_rsa.pub {SSH_TEST_USER_USERNAME}@{SSH_NANO_HOST}',
+        pty=True, watchers=[local_sudopass, ]
+    )
+
+
+@task
+def install(ctx):
+    copy_local_ssh_to_nano(ctx)
+    ssh_scp_local_to_nano(ctx)
+    git_clone(ctx, "git@github.com:kuzentio/wages.git")
+    pip3_install(ctx, params=['r', ], packages=['wages/requirements/nano.txt', ], is_sudo=False)
+    with connection.cd("wages"):
+        git_clone(ctx, "git@github.com:kuzentio/frontend.git")
+        with connection.cd("frontend"):
+            connection.run("npm install")
 
 
 @task

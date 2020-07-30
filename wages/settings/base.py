@@ -14,11 +14,6 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-from dotenv import load_dotenv
-load_dotenv(
-    dotenv_path=os.path.join(BASE_DIR, '../provision', '.env'),
-)
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'j8%dq$ku+n-@*0pki17@zx=$-m#deyh8xn1(+4l^(6@+xqtg%h'
 

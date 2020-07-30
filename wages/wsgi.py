@@ -11,5 +11,5 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'wages.settings.local')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", f"wages.settings.{os.getenv('ENV', default='local')}")
 application = get_wsgi_application()

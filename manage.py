@@ -5,7 +5,7 @@ import sys
 
 
 def main():
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'wages.settings.local')
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", f"wages.settings.{os.getenv('ENV', default='local')}")
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

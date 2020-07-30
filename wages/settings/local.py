@@ -1,6 +1,9 @@
 from .base import *
-# Database
-# https://docs.djangoproject.com/en/3.0/ref/settings/#databases
+from dotenv import load_dotenv
+
+load_dotenv(
+    dotenv_path=os.path.join(BASE_DIR, '../provision/local', '.env'),
+)
 
 DATABASES = {
     'default': {

@@ -3,7 +3,7 @@ from invoke import Responder
 
 SSH_TEST_USER_USERNAME = 'igor'
 SSH_TEST_USER_PASSWORD = '1'
-SSH_NANO_HOST = '192.168.0.103'
+SSH_NANO_HOST = '192.168.0.112'
 
 connection = Connection(
     SSH_NANO_HOST, user=SSH_TEST_USER_USERNAME, port=22, connect_kwargs={'password': SSH_TEST_USER_PASSWORD}
@@ -171,17 +171,17 @@ def install(ctx):
         with connection.cd("frontend"):
             connection.run("npm install")
 
-
-@task
-def stream_camera_register_task(ctx):
-    """
-    Warn! Runs only ones on initialization.
-    """
-    cmd = "gst-launch-1.0 -v nvarguscamerasrc ! 'video/x-raw(memory:NVMM), format=NV12, width=1920, " \
-          "height=1080, framerate=30/1' ! nvvidconv ! 'video/x-raw, width=640, height=480, format=I420, " \
-          "framerate=30/1' ! videoconvert ! identity drop-allocation=1 ! 'video/x-raw, width=640, height=480, " \
-          "format=RGB, framerate=30/1' ! v4l2sink device=/dev/video2"
-    connection.run(f'echo "@reboot {cmd}" | crontab -')
+#
+# @task
+# def stream_camera_register_task(ctx):
+#     """
+#     Warn! Runs only ones on initialization.
+#     """
+#     cmd = "gst-launch-1.0 -v nvarguscamerasrc ! 'video/x-raw(memory:NVMM), format=NV12, width=1920, " \
+#           "height=1080, framerate=30/1' ! nvvidconv ! 'video/x-raw, width=640, height=480, format=I420, " \
+#           "framerate=30/1' ! videoconvert ! identity drop-allocation=1 ! 'video/x-raw, width=640, height=480, " \
+#           "format=RGB, framerate=30/1' ! v4l2sink device=/dev/video2"
+#     connection.run(f'echo "@reboot {cmd}" | crontab -')
 
 
 def su(command):
@@ -220,11 +220,24 @@ def remove_pink_tint_from_camera_module(ctx):
 
 
 @task
+def define_camera(ctx):
+    connection.run("sudo addgroup --system camera", pty=True, watchers=sudopass)
+    connection.run(
+        "sudo adduser --system --no-create-home --disabled-login --disabled-password --ingroup camera camera",
+        pty=True, watchers=sudopass
+    )
+    connection.run(
+        "sudo cp /home/igor/wages/provision/nano/camera.service /lib/systemd/system/camera.service", pty=True, watchers=sudopass
+    )
+    connection.run("sudo systemctl daemon-reload", pty=True, watchers=sudopass)
+    connection.run("sudo systemctl start camera", pty=True, watchers=sudopass)
+
+
+@task
 def provision(ctx):
     apt_upgrade(ctx)
     setup_mipi_camera_virtual_device(ctx)
     remove_pink_tint_from_camera_module(ctx)
-    stream_camera_register_task(ctx)
 
     install_pip3(ctx)
     installOpenCV(ctx)
@@ -235,3 +248,10 @@ def provision(ctx):
     installDetecto(ctx)
     installDockerCompose(ctx)
     installNode(ctx)
+
+    ssh_scp_local_to_nano(ctx)
+    copy_local_ssh_to_nano(ctx)
+    git_clone(
+        ctx, 'git@github.com:kuzentio/wages.git'
+    )
+    define_camera(ctx)

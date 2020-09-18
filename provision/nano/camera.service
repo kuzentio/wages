@@ -1,0 +1,8 @@
+[Unit]
+After=network.target
+Description="Camera Service"
+[Service]
+ExecStart=/home/igor/wages/provision/nano/gstream.sh
+User=camera
+[Install]
+WantedBy=multi-user.target

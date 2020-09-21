@@ -16,6 +16,10 @@ sudopass = [
     Responder(
         pattern=r'Password:',
         response=f'{SSH_TEST_USER_PASSWORD}\n',
+    ),
+    Responder(
+        pattern=r"{}@{}'s password:".format(SSH_TEST_USER_USERNAME, SSH_NANO_HOST),
+        response=f'{SSH_TEST_USER_PASSWORD}\n',
     )
 ]
 local_sudopass = Responder(
@@ -23,7 +27,7 @@ local_sudopass = Responder(
     response=f'{SSH_TEST_USER_PASSWORD}\n',
 )
 github_approve_watcher = Responder(
-    pattern=r"Are you sure you want to continue connecting (yes/no)?",
+    pattern=r"Are you sure you want to continue connecting",
     response=f'yes\n',
 )
 
@@ -136,20 +140,12 @@ def installTorchvision(ctx):
 @task
 def installNode(ctx):
     cmd = """
-    wget https://nodejs.org/dist/v12.13.0/node-v12.13.0-linux-arm64.tar.xz
-    tar -xJf node-v12.13.0-linux-arm64.tar.xz
-    cd node-v12.13.0-linux-arm64
-    sudo cp -R * /usr/local/; cd
+    wget https://nodejs.org/dist/v12.13.0/node-v12.13.0-linux-arm64.tar.xz &&
+    tar -xJf node-v12.13.0-linux-arm64.tar.xz &&
+    cd node-v12.13.0-linux-arm64 &&
+    sudo cp -R * /usr/local/
     """
     connection.run(cmd, pty=True, watchers=sudopass)
-
-
-@task
-def ssh_scp_local_to_nano(ctx):
-    connection.local(
-        f'scp ~/.ssh/id_rsa {SSH_TEST_USER_USERNAME}@{SSH_NANO_HOST}:/home/igor/.ssh/',
-        pty=True, watchers=[local_sudopass, ]
-    )
 
 
 @task
@@ -161,27 +157,37 @@ def copy_local_ssh_to_nano(ctx):
 
 
 @task
+def copy_nano_wages_key(ctx):
+    connection.local(
+        f'scp -r ~/workspace/wages/ssh/nano/ {SSH_TEST_USER_USERNAME}@{SSH_NANO_HOST}:/home/igor/.ssh/', pty=True,
+        watchers=sudopass
+    )
+    connection.run('chmod 700 ~/.ssh', watchers=sudopass)
+    connection.run('chmod 600 ~/.ssh/id_rsa', watchers=sudopass)
+    connection.run('chmod 644 ~/.ssh/id_rsa.pub', watchers=sudopass)
+
+
+@task
 def install(ctx):
-    copy_local_ssh_to_nano(ctx)
-    ssh_scp_local_to_nano(ctx)
+    copy_nano_wages_key(ctx)
     git_clone(ctx, "git@github.com:kuzentio/wages.git")
-    pip3_install(ctx, params=['r', ], packages=['wages/requirements/nano.txt', ], is_sudo=False)
     with connection.cd("wages"):
+        pip3_install(ctx, params=['r', ], packages=['requirements/nano.txt', ], is_sudo=False)
         git_clone(ctx, "git@github.com:kuzentio/frontend.git")
         with connection.cd("frontend"):
             connection.run("npm install")
 
-#
-# @task
-# def stream_camera_register_task(ctx):
-#     """
-#     Warn! Runs only ones on initialization.
-#     """
-#     cmd = "gst-launch-1.0 -v nvarguscamerasrc ! 'video/x-raw(memory:NVMM), format=NV12, width=1920, " \
-#           "height=1080, framerate=30/1' ! nvvidconv ! 'video/x-raw, width=640, height=480, format=I420, " \
-#           "framerate=30/1' ! videoconvert ! identity drop-allocation=1 ! 'video/x-raw, width=640, height=480, " \
-#           "format=RGB, framerate=30/1' ! v4l2sink device=/dev/video2"
-#     connection.run(f'echo "@reboot {cmd}" | crontab -')
+
+@task
+def stream_camera_register_task(ctx):
+    """
+    Warn! Runs only ones on initialization.
+    """
+    cmd = "gst-launch-1.0 -v nvarguscamerasrc ! 'video/x-raw(memory:NVMM), format=NV12, width=1920, " \
+          "height=1080, framerate=30/1' ! nvvidconv ! 'video/x-raw, width=640, height=480, format=I420, " \
+          "framerate=30/1' ! videoconvert ! identity drop-allocation=1 ! 'video/x-raw, width=640, height=480, " \
+          "format=RGB, framerate=30/1' ! v4l2sink device=/dev/video2"
+    connection.run(f'echo "@reboot {cmd}" | crontab -')
 
 
 def su(command):
@@ -220,20 +226,6 @@ def remove_pink_tint_from_camera_module(ctx):
 
 
 @task
-def define_camera(ctx):
-    connection.run("sudo addgroup --system camera", pty=True, watchers=sudopass)
-    connection.run(
-        "sudo adduser --system --no-create-home --disabled-login --disabled-password --ingroup camera camera",
-        pty=True, watchers=sudopass
-    )
-    connection.run(
-        "sudo cp /home/igor/wages/provision/nano/camera.service /lib/systemd/system/camera.service", pty=True, watchers=sudopass
-    )
-    connection.run("sudo systemctl daemon-reload", pty=True, watchers=sudopass)
-    connection.run("sudo systemctl start camera", pty=True, watchers=sudopass)
-
-
-@task
 def provision(ctx):
     apt_upgrade(ctx)
     setup_mipi_camera_virtual_device(ctx)
@@ -248,10 +240,6 @@ def provision(ctx):
     installDetecto(ctx)
     installDockerCompose(ctx)
     installNode(ctx)
-
-    ssh_scp_local_to_nano(ctx)
-    copy_local_ssh_to_nano(ctx)
-    git_clone(
-        ctx, 'git@github.com:kuzentio/wages.git'
-    )
-    define_camera(ctx)
+    stream_camera_register_task(ctx)
+    install(ctx)
+    connection.run("sudo reboot", pty=True, watchers=sudopass)

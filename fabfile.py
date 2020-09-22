@@ -3,7 +3,8 @@ from invoke import Responder
 
 SSH_TEST_USER_USERNAME = 'igor'
 SSH_TEST_USER_PASSWORD = '1'
-SSH_NANO_HOST = '192.168.0.112'
+SSH_NANO_HOST = '192.168.0.111'
+POSTGRES_PASSWORD = "root"
 
 connection = Connection(
     SSH_NANO_HOST, user=SSH_TEST_USER_USERNAME, port=22, connect_kwargs={'password': SSH_TEST_USER_PASSWORD}
@@ -160,7 +161,7 @@ def copy_local_ssh_to_nano(ctx):
 def copy_nano_wages_key(ctx):
     connection.local(
         f'scp -r ~/workspace/wages/ssh/nano/ {SSH_TEST_USER_USERNAME}@{SSH_NANO_HOST}:/home/igor/.ssh/', pty=True,
-        watchers=sudopass
+        watchers=sudopass + [github_approve_watcher, ]
     )
     connection.run('chmod 700 ~/.ssh', watchers=sudopass)
     connection.run('chmod 600 ~/.ssh/id_rsa', watchers=sudopass)
@@ -168,7 +169,7 @@ def copy_nano_wages_key(ctx):
 
 
 @task
-def install(ctx):
+def install_wages(ctx):
     copy_nano_wages_key(ctx)
     git_clone(ctx, "git@github.com:kuzentio/wages.git")
     with connection.cd("wages"):
@@ -226,6 +227,19 @@ def remove_pink_tint_from_camera_module(ctx):
 
 
 @task
+def init_db(ctx):
+    connection.run('sudo -u postgres psql -t -A -c "CREATE DATABASE wages;"', pty=True, watchers=sudopass)
+
+
+@task
+def set_postgres_password(ctx):
+    connection.run(
+        f'sudo -u postgres psql -t -A -c "ALTER USER postgres WITH PASSWORD \'{POSTGRES_PASSWORD}\';"',
+        pty=True, watchers=sudopass
+    )
+
+
+@task
 def provision(ctx):
     apt_upgrade(ctx)
     setup_mipi_camera_virtual_device(ctx)
@@ -241,5 +255,7 @@ def provision(ctx):
     installDockerCompose(ctx)
     installNode(ctx)
     stream_camera_register_task(ctx)
-    install(ctx)
+    install_wages(ctx)
+    init_db(ctx)
+    set_postgres_password(ctx)
     connection.run("sudo reboot", pty=True, watchers=sudopass)

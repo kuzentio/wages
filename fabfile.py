@@ -177,6 +177,7 @@ def install_wages(ctx):
         git_clone(ctx, "git@github.com:kuzentio/frontend.git")
         with connection.cd("frontend"):
             connection.run("npm install")
+    connection.run("mv provision/nano/.env.example provision/nano/.env")
 
 
 @task
@@ -241,6 +242,7 @@ def set_postgres_password(ctx):
 
 @task
 def provision(ctx):
+    copy_local_ssh_to_nano(ctx)
     apt_upgrade(ctx)
     setup_mipi_camera_virtual_device(ctx)
     remove_pink_tint_from_camera_module(ctx)

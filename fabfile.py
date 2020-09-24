@@ -241,6 +241,13 @@ def set_postgres_password(ctx):
 
 
 @task
+def reduce_swap(ctx):
+    git_clone(ctx, 'https://github.com/JetsonHacksNano/resizeSwapMemory')
+    with connection.cd('resizeSwapMemory'):
+        connection.run('./setSwapMemorySize.sh -g 16', pty=True, watchers=sudopass)
+
+
+@task
 def provision(ctx):
     copy_local_ssh_to_nano(ctx)
     apt_upgrade(ctx)
@@ -260,4 +267,5 @@ def provision(ctx):
     install_wages(ctx)
     init_db(ctx)
     set_postgres_password(ctx)
+    reduce_swap(ctx)
     connection.run("sudo reboot", pty=True, watchers=sudopass)

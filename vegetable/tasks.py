@@ -14,7 +14,7 @@ def running_training():
     from detecto.core import Model, Dataset, DataLoader
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    slugs = Vegetable.objects.all().values_list('slug', flat=True)
+    slugs = Vegetable.objects.all().order_by('id').values_list('slug', flat=True)
     dataset = Dataset(
         os.path.join(PYTORCH_BASE_DIR, image_and_annotation_folder())
     )

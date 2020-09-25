@@ -1,0 +1,12 @@
+[Unit]
+Description=Wages software for scales
+After=network.target
+
+[Service]
+User=igor
+WorkingDirectory=/home/igor/wages
+ExecStart=/home/igor/.local/bin/gunicorn --bind 127.0.0.1:8000 -w 4 --access-logfile - --error-logfile - wages.wsgi:application
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

@@ -247,37 +247,6 @@ def reduce_swap(ctx):
         connection.run('./setSwapMemorySize.sh -g 16', pty=True, watchers=sudopass)
 
 
-@task
-def provision(ctx):
-    copy_local_ssh_to_nano(ctx)
-    apt_upgrade(ctx)
-    setup_mipi_camera_virtual_device(ctx)
-    remove_pink_tint_from_camera_module(ctx)
-
-    install_pip3(ctx)
-    installOpenCV(ctx)
-    installPostgres(ctx)
-    inistallRedis(ctx)
-    installPyTorch(ctx)
-    installTorchvision(ctx)
-    installDetecto(ctx)
-    installDockerCompose(ctx)
-    installNode(ctx)
-    stream_camera_register_task(ctx)
-    install_wages(ctx)
-    init_db(ctx)
-    set_postgres_password(ctx)
-    reduce_swap(ctx)
-    connection.run("sudo reboot", pty=True, watchers=sudopass)
-
-
-#  TODO: Not tested over flow
-@task
-def yarn_build(ctx):
-    with connection.cd('frontend'):
-        connection.run('yarn build')
-
-
 #  TODO: Not tested over flow
 @task
 def install_yarn(ctx):
@@ -301,3 +270,36 @@ def install_nginx(ctx):
     connection.run(
         'sudo ln -s /etc/nginx/sites-available/wages.nginx /etc/nginx/sites-enabled/wages.nginx'
     )
+
+
+@task
+def provision(ctx):
+    copy_local_ssh_to_nano(ctx)
+    apt_upgrade(ctx)
+    setup_mipi_camera_virtual_device(ctx)
+    remove_pink_tint_from_camera_module(ctx)
+
+    install_pip3(ctx)
+    installOpenCV(ctx)
+    installPostgres(ctx)
+    inistallRedis(ctx)
+    installPyTorch(ctx)
+    installTorchvision(ctx)
+    installDetecto(ctx)
+    installDockerCompose(ctx)
+    installNode(ctx)
+    stream_camera_register_task(ctx)
+    install_wages(ctx)
+    init_db(ctx)
+    set_postgres_password(ctx)
+    reduce_swap(ctx)
+    install_yarn(ctx)
+    install_nginx(ctx)
+    connection.run("sudo reboot", pty=True, watchers=sudopass)
+
+
+#  TODO: Not tested over flow
+@task
+def yarn_build(ctx):
+    with connection.cd('frontend'):
+        connection.run('yarn build')

@@ -9,10 +9,9 @@ from vegetable.models import PYTORCH_BASE_DIR, Vegetable
 
 PATH = os.path.join(PYTORCH_BASE_DIR, 'models', 'test.pth')
 
-model = core.Model.load(PATH, list(Vegetable.objects.all().order_by('id').values_list('slug', flat=True)))
-
 
 def recognize(request):
+    model = core.Model.load(PATH, list(Vegetable.objects.all().order_by('id').values_list('slug', flat=True)))
     image_data = json.loads(request.body).get('image_data')
     img_file = utils.decode_base64_file(image_data)
     img = Image.open(img_file)

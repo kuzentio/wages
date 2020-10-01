@@ -267,13 +267,20 @@ def install_nginx(ctx):
     apt_get_install(ctx, ['nginx', ], is_sudo=True)
     connection.run('sudo rm /etc/nginx/sites-enabled/default', pty=True, watchers=sudopass)
     connection.run(
-        'mv /home/igor/wages/provision/nano/nginx/wages.nginx /etc/nginx/sites-available/wages.nginx',
+        'sudo mv /home/igor/wages/provision/nano/nginx/wages.nginx /etc/nginx/sites-available/wages.nginx',
         pty=True, watchers=sudopass
     )
     connection.run(
         'sudo ln -s /etc/nginx/sites-available/wages.nginx /etc/nginx/sites-enabled/wages.nginx',
         pty=True, watchers=sudopass
     )
+
+
+@task
+def yarn_build(ctx):
+    with connection.cd('wages'):
+        with connection.cd('frontend'):
+            connection.run('yarn build')
 
 
 @task
@@ -299,11 +306,8 @@ def provision(ctx):
     reduce_swap(ctx)
     install_yarn(ctx)
     install_nginx(ctx)
+    yarn_build(ctx)
     connection.run("sudo reboot", pty=True, watchers=sudopass)
 
 
 #  TODO: Not tested over flow
-@task
-def yarn_build(ctx):
-    with connection.cd('frontend'):
-        connection.run('yarn build')

@@ -247,6 +247,31 @@ def reduce_swap(ctx):
         connection.run('./setSwapMemorySize.sh -g 16', pty=True, watchers=sudopass)
 
 
+#  TODO: Not tested over flow
+@task
+def install_yarn(ctx):
+    connection.run('curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -')
+    connection.run(
+        'echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list'
+    )
+    connection.run('sudo apt-get update -y')
+    connection.run('sudo apt-get install -y yarn ')
+
+
+#  TODO: Not tested over flow
+@task
+def install_nginx(ctx):
+    apt_get_install(['nginx', ], is_sudo=True)
+    connection.run('sudo rm /etc/nginx/sites-enabled/default')
+    connection.run(
+        f'mv /home/igor/wages/provision/nano/nginx/wages.nginx /etc/nginx/sites-available/wages.nginx',
+        pty=True, watchers=[sudopass, ]
+    )
+    connection.run(
+        'sudo ln -s /etc/nginx/sites-available/wages.nginx /etc/nginx/sites-enabled/wages.nginx'
+    )
+
+
 @task
 def provision(ctx):
     copy_local_ssh_to_nano(ctx)
@@ -268,4 +293,13 @@ def provision(ctx):
     init_db(ctx)
     set_postgres_password(ctx)
     reduce_swap(ctx)
+    install_yarn(ctx)
+    install_nginx(ctx)
     connection.run("sudo reboot", pty=True, watchers=sudopass)
+
+
+#  TODO: Not tested over flow
+@task
+def yarn_build(ctx):
+    with connection.cd('frontend'):
+        connection.run('yarn build')

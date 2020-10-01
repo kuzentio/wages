@@ -160,7 +160,7 @@ def copy_local_ssh_to_nano(ctx):
 @task
 def copy_nano_wages_key(ctx):
     connection.local(
-        f'scp -r ~/workspace/wages/ssh/nano/ {SSH_TEST_USER_USERNAME}@{SSH_NANO_HOST}:/home/igor/.ssh/', pty=True,
+        f'scp -r ~/workspace/wages/ssh/nano/* {SSH_TEST_USER_USERNAME}@{SSH_NANO_HOST}:/home/igor/.ssh/', pty=True,
         watchers=sudopass + [github_approve_watcher, ]
     )
     connection.run('chmod 700 ~/.ssh', watchers=sudopass)
@@ -177,7 +177,7 @@ def install_wages(ctx):
         git_clone(ctx, "git@github.com:kuzentio/frontend.git")
         with connection.cd("frontend"):
             connection.run("npm install")
-    connection.run("mv provision/nano/.env.example provision/nano/.env")
+    connection.run("mv /home/igor/wages/provision/nano/.env.example /home/igor/wages/provision/nano/.env")
 
 
 @task
@@ -247,6 +247,35 @@ def reduce_swap(ctx):
         connection.run('./setSwapMemorySize.sh -g 16', pty=True, watchers=sudopass)
 
 
+#  TODO: Not tested over flow
+@task
+def install_yarn(ctx):
+    connection.run(
+        'curl -sL https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -', pty=True, watchers=sudopass
+    )
+    connection.run(
+        'echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list',
+        pty=True, watchers=sudopass
+    )
+    connection.run('sudo apt-get update -y', pty=True, watchers=sudopass)
+    connection.run('sudo apt-get install -y yarn ', pty=True, watchers=sudopass)
+
+
+#  TODO: Not tested over flow
+@task
+def install_nginx(ctx):
+    apt_get_install(ctx, ['nginx', ], is_sudo=True)
+    connection.run('sudo rm /etc/nginx/sites-enabled/default', pty=True, watchers=sudopass)
+    connection.run(
+        'mv /home/igor/wages/provision/nano/nginx/wages.nginx /etc/nginx/sites-available/wages.nginx',
+        pty=True, watchers=sudopass
+    )
+    connection.run(
+        'sudo ln -s /etc/nginx/sites-available/wages.nginx /etc/nginx/sites-enabled/wages.nginx',
+        pty=True, watchers=sudopass
+    )
+
+
 @task
 def provision(ctx):
     copy_local_ssh_to_nano(ctx)
@@ -268,4 +297,13 @@ def provision(ctx):
     init_db(ctx)
     set_postgres_password(ctx)
     reduce_swap(ctx)
+    install_yarn(ctx)
+    install_nginx(ctx)
     connection.run("sudo reboot", pty=True, watchers=sudopass)
+
+
+#  TODO: Not tested over flow
+@task
+def yarn_build(ctx):
+    with connection.cd('frontend'):
+        connection.run('yarn build')

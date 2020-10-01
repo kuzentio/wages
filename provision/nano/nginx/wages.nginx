@@ -1,0 +1,14 @@
+server {
+    listen 80;
+    root /home/igor/wages/frontend/build;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+    location /api {
+        include proxy_params;
+        proxy_pass http://localhost:8000;
+    }
+
+}

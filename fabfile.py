@@ -3,7 +3,7 @@ from invoke import Responder
 
 SSH_TEST_USER_USERNAME = 'igor'
 SSH_TEST_USER_PASSWORD = '1'
-SSH_NANO_HOST = '192.168.0.111'
+SSH_NANO_HOST = '192.168.0.113'
 POSTGRES_PASSWORD = "root"
 
 connection = Connection(

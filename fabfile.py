@@ -1,10 +1,12 @@
 from fabric2 import task, Connection
 from invoke import Responder
 
-SSH_TEST_USER_USERNAME = 'igor'
-SSH_TEST_USER_PASSWORD = '1'
-SSH_NANO_HOST = '192.168.0.113'
-POSTGRES_PASSWORD = "root"
+import os
+
+SSH_TEST_USER_USERNAME = os.getenv('SSH_TEST_USER_USERNAME')
+SSH_TEST_USER_PASSWORD = os.getenv('SSH_TEST_USER_PASSWORD')
+SSH_NANO_HOST = os.getenv('SSH_NANO_HOST')
+POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
 
 connection = Connection(
     SSH_NANO_HOST, user=SSH_TEST_USER_USERNAME, port=22, connect_kwargs={'password': SSH_TEST_USER_PASSWORD}

@@ -6,7 +6,7 @@ After=network.target
 User=igor
 Environment=ENV=nano
 WorkingDirectory=/home/igor/wages
-ExecStart=/home/igor/.local/bin/gunicorn --bind 127.0.0.1:8000 -w 1 --timeout 300 --access-logfile - --error-logfile /home/igor/wages/wages/gunicorn.log wages.wsgi:application
+ExecStart=/home/igor/.local/bin/gunicorn --bind 127.0.0.1:8000 -w 1 --timeout 300 --access-logfile /var/log/gunicorn/access.log --error-logfile /var/log/gunicorn/error.log wages.wsgi:application
 Restart=always
 
 [Install]

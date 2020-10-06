@@ -19,3 +19,6 @@ stop:
 restart:
 	make start
 	make stop
+
+provision:
+    fab provision -e .env

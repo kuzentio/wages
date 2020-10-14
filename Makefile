@@ -21,4 +21,4 @@ restart:
 	make stop
 
 provision:
-    fab provision -e .env
+	fab provision -e .env

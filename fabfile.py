@@ -286,6 +286,17 @@ def yarn_build(ctx):
 
 
 @task
+def apply_to_service(ctx, command, application):
+    connection.run(f'sudo systemctl {command} {application}')
+
+
+@task
+def migrate(ctx):
+    with connection.cd('wages'):
+        connection.run('ENV=nano python3 manage.py migrate')
+
+
+@task
 def provision(ctx):
     copy_local_ssh_to_nano(ctx)
     apt_upgrade(ctx)
@@ -302,6 +313,7 @@ def provision(ctx):
     installDockerCompose(ctx)
     installNode(ctx)
     stream_camera_register_task(ctx)
+    su('mkdir /var/log/gunicorn/')
     install_wages(ctx)
     init_db(ctx)
     set_postgres_password(ctx)
@@ -309,7 +321,6 @@ def provision(ctx):
     install_yarn(ctx)
     install_nginx(ctx)
     yarn_build(ctx)
+    apply_to_service(ctx, 'restart', 'wages')
+    migrate(ctx)
     connection.run("sudo reboot", pty=True, watchers=sudopass)
-
-
-#  TODO: Not tested over flow

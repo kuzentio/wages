@@ -3,13 +3,18 @@ from invoke import Responder
 
 import os
 
+from dotenv import load_dotenv
+load_dotenv(
+    dotenv_path='.env'
+)
+
 SSH_TEST_USER_USERNAME = os.getenv('SSH_TEST_USER_USERNAME')
 SSH_TEST_USER_PASSWORD = os.getenv('SSH_TEST_USER_PASSWORD')
 SSH_NANO_HOST = os.getenv('SSH_NANO_HOST')
 POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
 
 connection = Connection(
-    SSH_NANO_HOST, user=SSH_TEST_USER_USERNAME, port=22, connect_kwargs={'password': SSH_TEST_USER_PASSWORD}
+    host=SSH_NANO_HOST, user=SSH_TEST_USER_USERNAME, port=22, connect_kwargs={'password': SSH_TEST_USER_PASSWORD}
 )
 sudopass = [
     Responder(
@@ -31,6 +36,10 @@ local_sudopass = Responder(
 )
 github_approve_watcher = Responder(
     pattern=r"Are you sure you want to continue connecting",
+    response=f'yes\n',
+)
+ssh_knowing_host_record = Responder(
+    pattern=r'Are you sure you want to continue connecting (yes/no/[fingerprint])?',
     response=f'yes\n',
 )
 
@@ -155,7 +164,7 @@ def installNode(ctx):
 def copy_local_ssh_to_nano(ctx):
     connection.local(
         f'ssh-copy-id -i ~/.ssh/id_rsa.pub {SSH_TEST_USER_USERNAME}@{SSH_NANO_HOST}',
-        pty=True, watchers=[local_sudopass, ]
+        pty=True, watchers=[local_sudopass, ssh_knowing_host_record]
     )
 
 
@@ -279,6 +288,14 @@ def install_nginx(ctx):
 
 
 @task
+def setup_gunicorn_service(ctx):
+    connection.run(
+        'sudo mv /home/igor/wages/provision/nano/service/wages.service /etc/systemd/system/wages.service',
+        pty=True, watchers=sudopass
+    )
+
+
+@task
 def yarn_build(ctx):
     with connection.cd('wages'):
         with connection.cd('frontend'):
@@ -320,6 +337,7 @@ def provision(ctx):
     reduce_swap(ctx)
     install_yarn(ctx)
     install_nginx(ctx)
+    setup_gunicorn_service(ctx)
     yarn_build(ctx)
     apply_to_service(ctx, 'restart', 'wages')
     migrate(ctx)

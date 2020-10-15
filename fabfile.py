@@ -304,13 +304,19 @@ def yarn_build(ctx):
 
 @task
 def apply_to_service(ctx, command, application):
-    connection.run(f'sudo systemctl {command} {application}')
+    connection.run(f'sudo systemctl {command} {application}', pty=True, watchers=sudopass)
 
 
 @task
 def migrate(ctx):
     with connection.cd('wages'):
         connection.run('ENV=nano python3 manage.py migrate')
+
+
+@task
+def create_gunicorn_log_directory(ctx):
+    su('mkdir /var/log/gunicorn/')
+    connection.run(f"sudo chown -R {SSH_TEST_USER_USERNAME} /var/log/gunicorn/", pty=True, watchers=sudopass)
 
 
 @task
@@ -330,7 +336,7 @@ def provision(ctx):
     installDockerCompose(ctx)
     installNode(ctx)
     stream_camera_register_task(ctx)
-    su('mkdir /var/log/gunicorn/')
+    create_gunicorn_log_directory(ctx)
     install_wages(ctx)
     init_db(ctx)
     set_postgres_password(ctx)

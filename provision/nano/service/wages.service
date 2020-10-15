@@ -7,7 +7,8 @@ User=igor
 Environment=ENV=nano
 WorkingDirectory=/home/igor/wages
 ExecStart=/home/igor/.local/bin/gunicorn --bind 127.0.0.1:8000 -w 1 --timeout 300 --access-logfile /var/log/gunicorn/access.log --error-logfile /var/log/gunicorn/error.log wages.wsgi:application
-Restart=always
+Restart=on-failure
+RestartSec=5s
 
 [Install]
 WantedBy=multi-user.target

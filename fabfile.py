@@ -288,11 +288,16 @@ def install_nginx(ctx):
 
 
 @task
-def setup_gunicorn_service(ctx):
+def setup_wages_service(ctx):
     connection.run(
         'sudo mv /home/igor/wages/provision/nano/service/wages.service /etc/systemd/system/wages.service',
         pty=True, watchers=sudopass
     )
+    connection.run(
+        'sudo systemctl enable wages',
+        pty=True, watchers=sudopass
+    )
+
 
 
 @task
@@ -333,7 +338,7 @@ def provision(ctx):
     installPyTorch(ctx)
     installTorchvision(ctx)
     installDetecto(ctx)
-    installDockerCompose(ctx)
+    # installDockerCompose(ctx)
     installNode(ctx)
     stream_camera_register_task(ctx)
     create_gunicorn_log_directory(ctx)
@@ -343,7 +348,7 @@ def provision(ctx):
     reduce_swap(ctx)
     install_yarn(ctx)
     install_nginx(ctx)
-    setup_gunicorn_service(ctx)
+    setup_wages_service(ctx)
     yarn_build(ctx)
     apply_to_service(ctx, 'restart', 'wages')
     migrate(ctx)

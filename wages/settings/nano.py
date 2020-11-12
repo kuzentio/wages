@@ -5,6 +5,8 @@ load_dotenv(
     dotenv_path=os.path.join(BASE_DIR, '../provision/nano', '.env'),
 )
 
+# DEBUG = False
+
 ALLOWED_HOSTS = ['*']
 
 DATABASES = {

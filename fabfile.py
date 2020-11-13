@@ -325,6 +325,26 @@ def create_gunicorn_log_directory(ctx):
 
 
 @task
+def setup_celery_service(ctx):
+    connection.run(
+        'sudo mv /home/igor/wages/provision/nano/service/worker.service /etc/systemd/system/worker.service',
+        pty=True, watchers=sudopass
+    )
+    connection.run(
+        'sudo systemctl enable worker',
+        pty=True, watchers=sudopass
+    )
+    connection.run(
+        'sudo mv /home/igor/wages/provision/nano/service/scheduler.service /etc/systemd/system/scheduler.service',
+        pty=True, watchers=sudopass
+    )
+    connection.run(
+        'sudo systemctl enable scheduler',
+        pty=True, watchers=sudopass
+    )
+
+
+@task
 def provision(ctx):
     copy_local_ssh_to_nano(ctx)
     apt_upgrade(ctx)
@@ -349,7 +369,10 @@ def provision(ctx):
     install_yarn(ctx)
     install_nginx(ctx)
     setup_wages_service(ctx)
+    setup_celery_service(ctx)
     yarn_build(ctx)
     apply_to_service(ctx, 'restart', 'wages')
+    apply_to_service(ctx, 'restart', 'worker')
+    apply_to_service(ctx, 'restart', 'scheduler')
     migrate(ctx)
     connection.run("sudo reboot", pty=True, watchers=sudopass)

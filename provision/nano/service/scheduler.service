@@ -1,0 +1,14 @@
+[Unit]
+Description=Wages celery scheduler
+After=network.target
+
+[Service]
+User=igor
+Environment=ENV=nano
+WorkingDirectory=/home/igor/wages
+ExecStart=/home/igor/.local/bin/celery -A wages beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

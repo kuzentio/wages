@@ -326,22 +326,10 @@ def create_gunicorn_log_directory(ctx):
 
 @task
 def setup_celery_service(ctx):
-    connection.run(
-        'sudo mv /home/igor/wages/provision/nano/service/worker.service /etc/systemd/system/worker.service',
-        pty=True, watchers=sudopass
-    )
-    connection.run(
-        'sudo systemctl enable worker',
-        pty=True, watchers=sudopass
-    )
-    connection.run(
-        'sudo mv /home/igor/wages/provision/nano/service/scheduler.service /etc/systemd/system/scheduler.service',
-        pty=True, watchers=sudopass
-    )
-    connection.run(
-        'sudo systemctl enable scheduler',
-        pty=True, watchers=sudopass
-    )
+    su('mv /home/igor/wages/provision/nano/service/worker.service /etc/systemd/system/worker.service')
+    su('systemctl enable worker')
+    su('mv /home/igor/wages/provision/nano/service/scheduler.service /etc/systemd/system/scheduler.service')
+    su('systemctl enable scheduler')
 
 
 @task

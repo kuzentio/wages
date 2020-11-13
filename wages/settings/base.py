@@ -128,8 +128,6 @@ STATICFILES_DIRS = (
 )
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-CORS_ALLOW_ALL_ORIGINS = True
-
 CSRF_COOKIE_NAME = "XSRF-TOKEN"
 
 REST_FRAMEWORK = {
@@ -150,3 +148,11 @@ CELERY_CACHE_BACKEND = 'django-cache'
 SHELL_PLUS_IMPORTS = [
     'from vegetable.factories import *',
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ORIGIN_WHITELIST = (
+   'http://localhost:3000',
+   'http://localhost',
+   'http://localhost:8000'
+)

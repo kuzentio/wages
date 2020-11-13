@@ -1,0 +1,14 @@
+[Unit]
+Description=Wages celery worker
+After=network.target
+
+[Service]
+User=igor
+Environment=ENV=nano
+WorkingDirectory=/home/igor/wages
+ExecStart=/home/igor/.local/bin/celery -A wages worker -l info --concurrency=1
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target

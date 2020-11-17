@@ -333,6 +333,11 @@ def setup_celery_service(ctx):
 
 
 @task
+def setupKioskMode(ctx):
+    connection.run('sudo bash /home/igor/wages/provision/nano/kiosk.sh', pty=True, watchers=sudopass)
+
+
+@task
 def provision(ctx):
     copy_local_ssh_to_nano(ctx)
     apt_upgrade(ctx)
@@ -359,8 +364,8 @@ def provision(ctx):
     setup_wages_service(ctx)
     setup_celery_service(ctx)
     yarn_build(ctx)
-    apply_to_service(ctx, 'restart', 'wages')
-    apply_to_service(ctx, 'restart', 'worker')
-    apply_to_service(ctx, 'restart', 'scheduler')
+    for service in ['wages', 'worker', 'scheduler']:
+        apply_to_service(ctx, 'restart', service)
     migrate(ctx)
+    setupKioskMode(ctx)
     connection.run("sudo reboot", pty=True, watchers=sudopass)

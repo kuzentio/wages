@@ -6,7 +6,7 @@ After=network.target
 User=igor
 Environment=ENV=nano
 WorkingDirectory=/home/igor/wages
-ExecStart=/home/igor/.local/bin/celery -A wages worker -l info --concurrency=1
+ExecStart=/home/igor/.local/bin/celery -A wages worker -l info --pool=solo
 Restart=on-failure
 RestartSec=5s
 

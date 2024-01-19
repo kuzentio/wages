@@ -4,7 +4,8 @@ Wages project
 
 ## Overview
 
-This project empowers your NVIDIA Jetson Nano with PyTorch for efficient object detection, real-time video stream analysis, and background training capabilities. Labeling tools are integrated to streamline the process of preparing and enhancing your dataset.
+This project empowers your NVIDIA Jetson Nano with PyTorch for efficient object detection, real-time video stream analysis, and background training capabilities. 
+This project also includes labeling tool integrated to streamline the process of preparing and enhancing your dataset. UI is included as standalone application running in browser in kiosk mode.
 
 ## Features
 
